@@ -1,0 +1,28 @@
+# Ignore Python bytecode files and cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Ignore virtual environment
+
+# Virtual environment
+venv/
+venv/lib/
+venv/bin
+venv/include/
+
+__pycache__/
+*.pyc
+*.pyo
+
+
+# Ignore environment variables
+*.env
+
+# Ignore logs and local database files
+*.log
+*.sqlite3
+
+# Ignore other unimportant or temporary files
+*.swp
