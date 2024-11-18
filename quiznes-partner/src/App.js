@@ -6,8 +6,9 @@ function App() {
   const [questions, setQuestions] = useState([]);
   const [userAnswers, setUserAnswers] = useState({});
   const [quizResults, setQuizResults] = useState([]);
-  const [difficulty, setDifficulty] = useState("Easy"); // New state for difficulty
-  const [numQuestions, setNumQuestions] = useState(5); // New state for number of questions
+  const [difficulty, setDifficulty] = useState("Medium");
+  const [numQuestions, setNumQuestions] = useState(5);
+  const [file, setFile] = useState(null); // New state for the uploaded file
 
   const handleAnswerSelect = (questionIndex, selectedOption) => {
     setUserAnswers((prevAnswers) => ({
@@ -30,6 +31,31 @@ function App() {
     setQuizResults(results);
   };
 
+  const handleFileChange = (e) => {
+    setFile(e.target.files[0]);
+  };
+
+  const handleFileUpload = async () => {
+    if (!file) return;
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+      const response = await axios.post(
+        "http://localhost:5000/upload-pdf",
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+      setText(response.data.text); // Set extracted text from PDF
+    } catch (error) {
+      console.error("Error uploading file:", error);
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -38,7 +64,6 @@ function App() {
         difficulty,
         numQuestions,
       });
-      console.log("API Response:", response.data);
       const fetchedQuestions = response.data.questions;
       if (Array.isArray(fetchedQuestions)) {
         setQuestions(fetchedQuestions);
@@ -81,6 +106,13 @@ function App() {
             max="20"
           />
         </div>
+        <div>
+          <label>Upload PDF: </label>
+          <input type="file" onChange={handleFileChange} />
+          <button type="button" onClick={handleFileUpload}>
+            Extract Text from PDF
+          </button>
+        </div>
         <button type="submit">Generate Quiz</button>
       </form>
       <div>
@@ -113,7 +145,9 @@ function App() {
             <p>{result.question}</p>
             <p>
               Your Answer: {result.selected} -{" "}
-              {result.isCorrect ? "Correct" : "Incorrect"}
+              {result.isCorrect
+                ? "Correct"
+                : "Incorrect. Correct Answer: " + result.correct}
             </p>
             {!result.isCorrect && <p>{result.explanation}</p>}
           </div>
