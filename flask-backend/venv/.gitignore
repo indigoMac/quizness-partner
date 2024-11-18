@@ -7,9 +7,10 @@ __pycache__/
 # Ignore virtual environment
 
 # Virtual environment
-/venv/lib
-/venv/bin
-/venv/include
+venv/
+venv/lib/
+venv/bin
+venv/include/
 
 __pycache__/
 *.pyc

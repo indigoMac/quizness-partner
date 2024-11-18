@@ -5,7 +5,9 @@ function App() {
   const [text, setText] = useState("");
   const [questions, setQuestions] = useState([]);
   const [userAnswers, setUserAnswers] = useState({});
-  const [quizResults, setQuizResults] = useState([]); // New state to store quiz results
+  const [quizResults, setQuizResults] = useState([]);
+  const [difficulty, setDifficulty] = useState("Easy"); // New state for difficulty
+  const [numQuestions, setNumQuestions] = useState(5); // New state for number of questions
 
   const handleAnswerSelect = (questionIndex, selectedOption) => {
     setUserAnswers((prevAnswers) => ({
@@ -22,12 +24,10 @@ function App() {
         selected: userAnswers[index],
         correct: q.answer,
         isCorrect,
-        explanation: isCorrect
-          ? ""
-          : "Here's why your answer is incorrect... " + q.explanation,
+        explanation: isCorrect ? "" : q.explanation,
       };
     });
-    setQuizResults(results); // Save the results in the state
+    setQuizResults(results);
   };
 
   const handleSubmit = async (e) => {
@@ -35,17 +35,19 @@ function App() {
     try {
       const response = await axios.post("http://localhost:5000/generate-quiz", {
         text,
+        difficulty,
+        numQuestions,
       });
-      console.log("API Response:", response.data); // Debugging: Check the response
+      console.log("API Response:", response.data);
       const fetchedQuestions = response.data.questions;
       if (Array.isArray(fetchedQuestions)) {
         setQuestions(fetchedQuestions);
       } else {
-        setQuestions([]); // Fallback to an empty array if questions is not an array
+        setQuestions([]);
       }
     } catch (error) {
       console.error("Error generating quiz:", error);
-      setQuestions([]); // Fallback in case of an error
+      setQuestions([]);
     }
   };
 
@@ -58,6 +60,27 @@ function App() {
           onChange={(e) => setText(e.target.value)}
           placeholder="Enter text here..."
         ></textarea>
+        <div>
+          <label>Difficulty: </label>
+          <select
+            value={difficulty}
+            onChange={(e) => setDifficulty(e.target.value)}
+          >
+            <option value="Easy">Easy</option>
+            <option value="Medium">Medium</option>
+            <option value="Hard">Hard</option>
+          </select>
+        </div>
+        <div>
+          <label>Number of Questions: </label>
+          <input
+            type="number"
+            value={numQuestions}
+            onChange={(e) => setNumQuestions(parseInt(e.target.value))}
+            min="1"
+            max="20"
+          />
+        </div>
         <button type="submit">Generate Quiz</button>
       </form>
       <div>
